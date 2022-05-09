@@ -1,1 +1,1 @@
-snowflake-connector-python==2.7
+snowflake-connector-python==2.7pytesseract
