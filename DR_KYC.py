@@ -8,13 +8,13 @@ import requests
 #import networkx as nx
 #from matplotlib.pyplot import figure
 import streamlit as st
-from datarobot_predict import make_datarobot_deployment_predictions,main
+#from datarobot_predict import make_datarobot_deployment_predictions,main
 #import matplotlib.pyplot as plt
-import datarobot_predict as dp ## REST API Code for classification
+#import datarobot_predict as dp ## REST API Code for classification
 #import seaborn as sns
 #from pyvis.network import Network
 #import streamlit.components.v1 as components
-import Anomaly_Detection as AD ## REST API code for anomaly detection
+#import Anomaly_Detection as AD ## REST API code for anomaly detection
 import snowflake.connector
 import base64
 from PIL import Image
