@@ -164,7 +164,7 @@ rows = run_query("Select * from DATAROBOT_DEMO.SAMPAD.IMAGES_DOCS_EKYC where APP
 
 with st.sidebar:
     st.image("DR_logo.png")
-    st.markdown('# DR KYC\n## KYC validation App\n[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)\n\nDR KYC App is a web app powered by DataRobot models. It allows for \n- Direct DB connection\n- AI powered document classification\n- OCR for data extraction\n\n\n\n     ')
+    st.markdown('# DR KYC\n## KYC validation App\n[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://github.com/SampadD/DR_KYC)\n\nDR KYC App is a web app powered by DataRobot models. It allows for \n- Direct DB connection\n- AI powered document classification\n- OCR for data extraction\n\n\n\n     ')
     #st.markdown('This app pulls data from a Snowflake DB containing KYC documents. It uses a DatRobot model to decipher type of the document. Futhermore it attempt to extract data from the document')
     
 
