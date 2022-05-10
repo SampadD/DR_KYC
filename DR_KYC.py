@@ -241,7 +241,8 @@ with st.sidebar:
     st.image("DR_logo.png")
     st.markdown('# DR KYC\n## KYC validation App\n\nDR KYC App is a web app powered by DataRobot models. It allows for \n- Direct DB connection\n- AI powered document classification\n- OCR for data extraction\n\n\n\n     ')
     #st.markdown('This app pulls data from a Snowflake DB containing KYC documents. It uses a DatRobot model to decipher type of the document. Futhermore it attempt to extract data from the document')
-    
+    st.markdown("The app connects to a Snowflake DB to fetch images submitted for KYC validation. It then makes prediction using DataRobot model to ascertain type of the document. It also makes predictions against a custom model logic hosted to extract text out of the images.")
+    st.markdown("##### Uses for the app:\n - Showcase DataRobot's visual AI capabilities\n - Showcase Snowflake + DR together \n - Showcase DataRobot's custom model hosting capability")
 
 if 'key' not in st.session_state:
     st.session_state.key = 0
