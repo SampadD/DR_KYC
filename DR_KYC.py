@@ -20,16 +20,20 @@ import base64
 from PIL import Image
 import pytesseract
 from io import BytesIO
+import sys
+import re
 #import SessionState
 #import streamlit.report_thread as ReportThread
 
 #pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+MAX_PREDICTION_FILE_SIZE_BYTES = 52428800  # 50 MB
 
 st.set_page_config(layout = 'wide')
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 API_URL = 'https://cfds-ccm-prod.orm.datarobot.com/predApi/v1.0/deployments/{deployment_id}/predictions'    # noqa
+API_URL_Uns = 'https://cfds-ccm-prod.orm.datarobot.com/predApi/v1.0/deployments/{deployment_id}/predictionsUnstructured'
 API_KEY = st.secrets.datarobot.apikey
 DATAROBOT_KEY = st.secrets.datarobot.drkey
 
@@ -130,7 +134,78 @@ def make_datarobot_deployment_predictions(data, deployment_id):
     # Return a Python dict following the schema in the documentation
     return predictions_response.json()
 
-
+def make_datarobot_deployment_unstructured_predictions(data, deployment_id, mimetype, charset):
+    """
+    Make unstructured predictions on data provided using DataRobot deployment_id provided.
+    See docs for details:
+         https://app.datarobot.com/docs/predictions/api/dr-predapi.html
+ 
+    Parameters
+    ----------
+    data : bytes
+        Bytes data read from provided file.
+    deployment_id : str
+        The ID of the deployment to make predictions with.
+    mimetype : str
+        Mimetype describing data being sent.
+        If mimetype starts with 'text/' or equal to 'application/json',
+        data will be decoded with provided or default(UTF-8) charset
+        and passed into the 'score_unstructured' hook implemented in custom.py provided with the model.
+ 
+        In case of other mimetype values data is treated as binary and passed without decoding.
+    charset : str
+        Charset should match the contents of the file, if file is text.
+ 
+    Returns
+    -------
+    data : bytes
+        Arbitrary data returned by unstructured model.
+ 
+ 
+    Raises
+    ------
+    DataRobotPredictionError if there are issues getting predictions from DataRobot
+    """
+    # Set HTTP headers. The charset should match the contents of the file.
+    headers = {
+        'Content-Type': '{};charset={}'.format(mimetype, charset),
+        'Authorization': 'Bearer {}'.format(API_KEY),
+        'DataRobot-Key': DATAROBOT_KEY,
+    }
+ 
+    url = API_URL_Uns.format(deployment_id=deployment_id)
+ 
+    # Make API request for predictions
+    predictions_response = requests.post(
+        url,
+        data=data,
+        headers=headers,
+    )
+    _raise_dataroboterror_for_status(predictions_response)
+    # Return raw response content
+    return predictions_response.content
+ 
+def main(filename, deployment_id, mimetype, charset):
+    """
+    Return an exit code on script completion or error. Codes > 0 are errors to the shell.
+    Also useful as a usage demonstration of
+    `make_datarobot_deployment_unstructured_predictions(data, deployment_id, mimetype, charset)`
+    """
+    data = open(filename, 'rb').read()
+    data_size = sys.getsizeof(data)
+    if data_size >= MAX_PREDICTION_FILE_SIZE_BYTES:
+        print((
+            'Input file is too large: {} bytes. '
+            'Max allowed size is: {} bytes.'
+        ).format(data_size, MAX_PREDICTION_FILE_SIZE_BYTES))
+        return 1
+    try:
+        predictions = make_datarobot_deployment_unstructured_predictions(data, deployment_id, mimetype, charset)
+    except DataRobotPredictionError as exc:
+        print(exc)
+        return 1
+    #print(predictions)
+    return predictions
 
 def image_predictions(image_str,deployment_id):
     df = pd.DataFrame([image_str], columns = ['image'])
@@ -222,7 +297,9 @@ st.text(str(prediction['data'][0]['predictionValues'][3]['value']*100))
 #     st.text("PAN card detected")
 
 
-data_eng = process_image(Image.open(BytesIO(image_64_decode)), "eng")
+#data_eng = process_image(Image.open(BytesIO(image_64_decode)), "eng")
+Image.open(BytesIO(image_64_decode)).save("test.png")
+data_eng = re.sub('b x0c', '',re.sub(' n ', ' ' ,re.sub('[^A-Za-z0-9]+', ' ', str(main("test.png", '627a48d5a22358b8a7fed140', 'image/png', 'UTF-8')))))
 
 st.markdown("#### Document data - Extracted using OCR")
 
